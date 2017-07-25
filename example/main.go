@@ -13,8 +13,5 @@ func main() {
 	r := gin.Default()
 	r.Use(rollbar.Recovery(true))
 
-	r.GET("/", func(*gin.Context) {
-		panic("failed")
-	})
 	r.Run(":8080")
 }
