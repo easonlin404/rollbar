@@ -8,7 +8,7 @@ import (
 
 func main() {
 	roll.Token = "POST_SERVER_ITEM_ACCESS_TOKEN"
-	roll.Environment = "development" // defaults to "development"
+	//roll.Environment = "production" // defaults to "development"
 
 	r := gin.Default()
 	r.Use(rollbar.Recovery(true))
