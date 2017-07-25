@@ -11,25 +11,28 @@ import (
 	"github.com/stvp/roll"
 )
 
-// Recovery middleware for rollbar crash reporting
-func Recovery(token, environment string) gin.HandlerFunc {
-	roll.Token = token
-	roll.Environment = environment // defaults to "development"
+// Recovery middleware for rollbar error monitoring
+func Recovery(onlyCrashes bool) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		defer func() {
-			custom := map[string]string{
-				"endpoint": c.Request.RequestURI,
-			}
 
 			if rval := recover(); rval != nil {
 				debug.PrintStack()
 
-				if _, err := roll.CriticalStack(errors.New(fmt.Sprint(rval)), getCallers(3), custom); err != nil {
-					fmt.Fprintln(gin.DefaultErrorWriter, err)
-				}
+				roll.CriticalStack(errors.New(fmt.Sprint(rval)), getCallers(3), map[string]string{
+					"endpoint": c.Request.RequestURI})
 
 				c.AbortWithStatus(http.StatusInternalServerError)
+			}
+
+			if !onlyCrashes {
+				for _, item := range c.Errors {
+					roll.Error(item.Err, map[string]string{
+						"meta":     fmt.Sprint(item.Meta),
+						"endpoint": c.Request.RequestURI,
+					})
+				}
 			}
 		}()
 

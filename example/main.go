@@ -3,14 +3,18 @@ package main
 import (
 	"github.com/easonlin404/rollbar"
 	"github.com/gin-gonic/gin"
+	"github.com/stvp/roll"
 )
 
 func main() {
-	token := "POST_SERVER_ITEM_ACCESS_TOKEN"
-	environment := "development"
+	roll.Token = "POST_SERVER_ITEM_ACCESS_TOKEN"
+	roll.Environment = "development" // defaults to "development"
 
 	r := gin.Default()
-	r.Use(rollbar.Recovery(token, environment))
+	r.Use(rollbar.Recovery(true))
 
+	r.GET("/", func(*gin.Context) {
+		panic("failed")
+	})
 	r.Run(":8080")
 }
